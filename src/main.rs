@@ -4,18 +4,18 @@ use core::fmt;
 
 
 #[derive(ClapParser)]
-#[clap(version = "0.0.1", author = "Jan Sosulski <mail@jan-sosulski.de>")]
+#[clap(version = "0.1.0", author = "Jan Sosulski <mail@jan-sosulski.de>")]
 struct Opts {
     /// Data to plot.
     data: Vec<f64>,
     /// Minimum value in the graph
-    #[clap(short, long, default_value = "0.0")]
+    #[clap(long, default_value = "0.0")]
     min: f64,
     /// Maximum value in the graph
-    #[clap(short, long, default_value = "100.0")]
+    #[clap(long, default_value = "100.0")]
     max: f64,
     /// Which chart type should be used? Currently only 'bar' is available.
-    #[clap(short, long, default_value = "bar")]
+    #[clap(long, default_value = "bar")]
     charttype: String,
     /// Is the output for tmux?
     #[clap(long)]
