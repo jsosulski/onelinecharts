@@ -20,6 +20,10 @@ Note that I have a service that logs cpu usage to the file `$XDG_RUNTIME_DIR/.cp
 
 <img src=https://user-images.githubusercontent.com/2545339/181198843-d55fb1f9-8777-46d8-9ab9-34828bf509d0.png width=250>
 
+## Installation
+
+Clone this repository and run `cargo build --release` in the root folder.
+
 ## FAQ
 
 **Why are you using a light theme terminal?**
