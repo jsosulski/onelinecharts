@@ -1,59 +1,28 @@
 use ansi_term::{Colour, Colour::Red};
-use clap::{App, Arg, ArgMatches};
+use clap::Parser as ClapParser;
 use core::fmt;
 
-fn parse_args() -> ArgMatches {
-    let matches = App::new("onelinecharts")
-        .author("Jan Sosulski <mail@jan-sosulski.de>")
-        .version("0.1.0")
-        .about("Charts in one line (mostly)")
-        .arg(
-            Arg::new("min")
-                .long("min")
-                .value_name("MIN")
-                .about("Minimum values of the data.")
-                .default_value("0")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::new("max")
-                .long("max")
-                .value_name("MAX")
-                .about("Maximum values of the data.")
-                .default_value("100")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::new("type")
-                .short('t')
-                .long("type")
-                .value_name("TYPE")
-                .about("Type of the chart, i.e. one of: ['bar']")
-                .default_value("bar")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::new("ylabel")
-                .long("ylabel")
-                .value_name("YLABEL")
-                .about("Show YLabel with preceding text")
-                .default_value("")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::new("tmux")
-                .long("tmux")
-                .about("Is the output for tmux?")
-        )
-        .arg(
-            Arg::new("data")
-                .value_name("DATA")
-                .about("Data to plot.")
-                .multiple_values(true)
-                .required(true),
-        )
-        .get_matches();
-    matches
+
+#[derive(ClapParser)]
+#[clap(version = "0.0.1", author = "Jan Sosulski <mail@jan-sosulski.de>")]
+struct Opts {
+    /// Data to plot.
+    data: Vec<f64>,
+    /// Minimum value in the graph
+    #[clap(short, long, default_value = "0.0")]
+    min: f64,
+    /// Maximum value in the graph
+    #[clap(short, long, default_value = "100.0")]
+    max: f64,
+    /// Which chart type should be used? Currently only 'bar' is available.
+    #[clap(short, long, default_value = "bar")]
+    charttype: String,
+    /// Is the output for tmux?
+    #[clap(long)]
+    tmux: bool,
+    /// Optional yaxis+ylabel to show
+    #[clap(long)]
+    ylabel: Option<String>,
 }
 
 struct BarChartProducer {
@@ -104,9 +73,9 @@ impl BarChartProducer {
     }
 
     // TODO infallible as of now
-    pub fn chart(&self, input: Vec<f64>, ylabel: &str) -> Result<String, String> {
-        let ylabel = if ylabel.len() > 0 {
-            ylabel.to_owned() + "↥ "
+    pub fn chart(&self, input: Vec<f64>, ylabel: Option<String>) -> Result<String, String> {
+        let ylabel = if ylabel.is_some() {
+            ylabel.unwrap() + "↥ "
         } else {
             "".to_owned()
         };
@@ -130,23 +99,11 @@ fn main() {
     // let bcp = BarChartProducer::new(0., 10.);
     // let output = bcp.chart(vec![0.0, 0.5, 1., 1.5, 2.0, 2.5, 5., 9., 9.9999, 10., 10.5, -0.5, 0.,1.,2.,3.,4.,5.,6.,7.,8.,9.,10.]).unwrap();
     // println!("{}", output);
-    let matches = parse_args();
-    let data: Vec<f64> = matches
-        .values_of("data")
-        .expect("No data provided")
-        .map(|e| e.parse::<f64>().expect("Data cannot be parsed to float"))
-        .collect();
-    let min = matches
-        .value_of("min")
-        .unwrap()
-        .parse::<f64>()
-        .expect("Min cannot be parsed as float");
-    let max = matches
-        .value_of("max")
-        .unwrap()
-        .parse::<f64>()
-        .expect("Max cannot be parsed as float");
-    let ylabel = matches.value_of("ylabel").unwrap();
-    let bcp = BarChartProducer::new(min, max, matches.is_present("tmux"));
+    let matches = Opts::parse();
+    let data: Vec<f64> = matches.data;
+    let min = matches.min;
+    let max = matches.max;
+    let ylabel = matches.ylabel;
+    let bcp = BarChartProducer::new(min, max, matches.tmux);
     println!("{}", bcp.chart(data, ylabel).expect("Charting failed."));
 }
