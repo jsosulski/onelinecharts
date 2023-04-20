@@ -2,7 +2,6 @@ use ansi_term::{Colour, Colour::Red};
 use clap::Parser as ClapParser;
 use core::fmt;
 
-
 #[derive(ClapParser)]
 #[clap(version = "0.1.0", author = "Jan Sosulski <mail@jan-sosulski.de>")]
 struct Opts {
@@ -39,14 +38,11 @@ impl BarChartProducer {
             // create symbol Struct -> has e.g. mapping attribute / function
             // Currently using arbitrary ö character for splitting, should
             // find a better solution
-            symbols: "▁ö▂ö▃ö▄ö▅ö▆ö▇ö█"
-                .split('ö')
-                .map(|s| String::from(s))
-                .collect(),
+            symbols: "▁ö▂ö▃ö▄ö▅ö▆ö▇ö█".split('ö').map(String::from).collect(),
             min,
             max,
             out_of_range: Red,
-            tmux_out
+            tmux_out,
         }
     }
     pub fn map(&self, input: &f64) -> Option<String> {
